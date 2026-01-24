@@ -88,7 +88,7 @@ export const RealtimeChat = ({
         <div className="space-y-1">
           {allMessages.map((message, index) => {
             const prevMessage = index > 0 ? allMessages[index - 1] : null
-            const showHeader = !prevMessage || prevMessage.user.name !== message.user.name
+            const showHeader = true; // This forces the name and time to appear on every message
 
             return (
               <div key={message.id} className="animate-in fade-in duration-300">

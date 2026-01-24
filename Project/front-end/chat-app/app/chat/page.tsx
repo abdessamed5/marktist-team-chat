@@ -3,7 +3,7 @@
 import { RealtimeChat } from '@/components/realtime-chat'
 import { createClient } from '@/lib/client'
 import { useEffect, useState, useRef } from 'react'
-import { LogOut, Clock } from 'lucide-react'
+import { LogOut, Clock, Users } from 'lucide-react'
 
 export default function ChatPage() {
   const supabase = createClient()
@@ -15,6 +15,7 @@ export default function ChatPage() {
   const [loading, setLoading] = useState(true)
   const [allUsers, setAllUsers] = useState<any[]>([])
   const [showAdminModal, setShowAdminModal] = useState(false)
+  const [showUsersModal, setShowUsersModal] = useState(false) // NEW: State for Users List modal
   const [selectedUsers, setSelectedUsers] = useState<string[]>([])
 
   const isInitialized = useRef(false); 
@@ -56,7 +57,6 @@ export default function ChatPage() {
         }
         setUserId(user.id)
         
-        // Fetch specific profile data including is_approved
         const { data: profile } = await supabase
             .from('profiles')
             .select('username, role, is_approved')
@@ -65,11 +65,10 @@ export default function ChatPage() {
         
         setUserName(profile?.username || user.email || 'User')
         setUserRole(profile?.role || 'employee')
-        setIsApproved(profile?.is_approved ?? false) // Set approval state
+        setIsApproved(profile?.is_approved ?? false) 
 
-        // Only fetch chat data if user IS approved
         if (profile?.is_approved) {
-            const { data: profiles } = await supabase.from('profiles').select('id, username, is_approved')
+            const { data: profiles } = await supabase.from('profiles').select('id, username, is_approved, role')
             if (profiles) setAllUsers(profiles)
 
             const { data: oldMessages } = await supabase
@@ -83,7 +82,7 @@ export default function ChatPage() {
                 id: m.id.toString(),
                 content: m.content,
                 user: { name: m.profiles?.username || "User" },
-                createdAt: m.inserted_at
+                createdAt: m.inserted_at 
               })))
             }
 
@@ -97,7 +96,7 @@ export default function ChatPage() {
                     id: newMessage.id.toString(),
                     content: newMessage.content,
                     user: { name: sender?.username || "New User" },
-                    createdAt: newMessage.inserted_at
+                    createdAt: newMessage.inserted_at || new Date().toISOString()
                   }];
                 });
               }).subscribe()
@@ -114,13 +113,16 @@ export default function ChatPage() {
     if (newMsg.content === lastProcessedMessage.current && (now - lastProcessTime.current) < 2000) return;
     lastProcessedMessage.current = newMsg.content;
     lastProcessTime.current = now;
-    const { error } = await supabase.from('messages').insert({ content: newMsg.content, sender_id: userId, room_id: 'general' });
+    const { error } = await supabase.from('messages').insert({ 
+        content: newMsg.content, 
+        sender_id: userId, 
+        room_id: 'general' 
+    });
     if (error) lastProcessedMessage.current = ""; 
   }
 
   if (loading) return <div className="h-screen bg-[#1a1a1a] flex items-center justify-center text-[#24b47e] font-bold">MARKTIST...</div>
 
-  // --- NEW: THE APPROVAL GATE ---
   if (isApproved === false) {
     return (
       <div className="h-screen w-full flex items-center justify-center p-6" style={{ backgroundColor: '#1a1a1a' }}>
@@ -176,15 +178,59 @@ export default function ChatPage() {
       </div>
 
       {userRole === 'admin' && (
-        <button 
-          onClick={() => setShowAdminModal(true)} 
-          className="fixed bottom-6 left-6 z-[999] p-4 rounded-full shadow-lg hover:bg-zinc-900 transition-all active:scale-95"
-          style={{ backgroundColor: '#242424', color: '#00b4d8', border: '1px solid #2d2d2d' }}
-        >
-          Admin
-        </button>
+        <>
+          {/* USERS LIST BUTTON (Positioned Above Admin Button) */}
+          <button 
+            onClick={() => setShowUsersModal(true)} 
+            className="fixed bottom-24 left-6 z-[999] p-4 rounded-full shadow-lg hover:bg-zinc-900 transition-all active:scale-95"
+            style={{ backgroundColor: '#242424', color: '#24b47e', border: '1px solid #2d2d2d' }}
+          >
+            <Users className="size-5" />
+          </button>
+
+          {/* ADMIN APPROVE BUTTON */}
+          <button 
+            onClick={() => setShowAdminModal(true)} 
+            className="fixed bottom-6 left-6 z-[999] p-4 rounded-full shadow-lg hover:bg-zinc-900 transition-all active:scale-95 text-xs font-bold uppercase tracking-tight"
+            style={{ backgroundColor: '#242424', color: '#00b4d8', border: '1px solid #2d2d2d' }}
+          >
+            Admin
+          </button>
+        </>
       )}
 
+      {/* MODAL 1: USERS LIST */}
+      {showUsersModal && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/80 backdrop-blur-sm">
+          <div className="p-6 rounded-xl w-80 shadow-2xl" style={{ backgroundColor: '#1a1a1a', border: '1px solid #2d2d2d' }}>
+            <div className="flex justify-between mb-4">
+              <h2 className="font-bold" style={{ color: '#ffffff' }}>All Users</h2>
+              <button onClick={() => setShowUsersModal(false)} style={{ color: '#ffffff' }}>✕</button>
+            </div>
+            <div className="space-y-2 max-h-80 overflow-y-auto mb-2 scrollbar-hide">
+              {allUsers.map((user) => (
+                <div 
+                  key={user.id} 
+                  className="flex flex-col p-3 rounded-lg"
+                  style={{ border: '1px solid #2d2d2d', backgroundColor: '#242424' }}
+                >
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-bold text-white">{user.username || 'User'}</span>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${user.role === 'admin' ? 'bg-cyan-500/10 text-cyan-400' : 'bg-zinc-500/10 text-zinc-400'}`}>
+                      {user.role}
+                    </span>
+                  </div>
+                  <span className={`text-[10px] mt-1 font-bold uppercase ${user.is_approved ? 'text-[#24b47e]' : 'text-red-500'}`}>
+                    {user.is_approved ? '● Approved' : '○ Pending'}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 2: GRANT ACCESS */}
       {showAdminModal && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/80 backdrop-blur-sm">
           <div className="p-6 rounded-xl w-80 shadow-2xl" style={{ backgroundColor: '#1a1a1a', border: '1px solid #2d2d2d' }}>
