@@ -5,7 +5,7 @@ MARKTIST is a sophisticated, full-stack communication platform built with **Next
 
 
 ---
-## 🧠 Development Philosophy: Why this Stack?
+##  Development Philosophy: Why this Stack?
 
 ### The Shift to Supabase + Next.js
 While I am proficient in the traditional **Node.js/Django** ecosystem, I chose to integrate **Supabase** for this project. This was a deliberate learning challenge for me. Despite it being new to my workflow, I recognized its potential for:
