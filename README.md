@@ -92,4 +92,16 @@ Install dependencies: npm install.
 
 Configure .env.local with your NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.
 Launch the environment: npm run dev.
+```
+##  Future Improvements & Limitations
+
+### Known Limitations
+- **PWA Capabilities**: The current version has a basic manifest. Full offline message queuing (storing messages while offline and sending them when back online) is a planned feature.
+- **Media Support**: Currently supports text-based communication only.
+
+### What I would improve with more time
+1. **PWA Optimization**: Implement a custom Service Worker for advanced caching and native-like Push Notifications.
+2. **Rich Media**: Add image and file upload support using Supabase Storage.
+3. **Advanced Rate Limiting**: Implement a Redis-based rate limiter to further prevent API abuse.
+4. **Enhanced UX**: Add "Typing Indicators" and "Read Receipts" for a more dynamic chat experience.
 
