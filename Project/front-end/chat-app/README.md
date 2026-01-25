@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MARKTIST Chat App
 
-## Getting Started
+A modern, real-time chat application built with Next.js 15, featuring a robust administrative approval system, secure messaging, and an optimized scrollable history.
 
-First, run the development server:
+## 🚀 Key Features
 
-```bash
+- **Admin Gatekeeping**: New users are placed in a "Pending" state until an admin grants access via the built-in Admin Panel.
+- **Smart History Pagination**: Loads an initial **50 messages** and fetches **20 more** on-demand as you scroll up, using scroll-anchoring to prevent UI jumps.
+- **Real-time Chat**: Instant messaging with live updates powered by Supabase Postgres Changes.
+- **Responsive Design**: Mobile-friendly interface built with Tailwind CSS and a high-contrast dark theme.
+- **Modern UI Components**: Clean, accessible components using Radix UI and shadcn/ui.
+- **TypeScript Support**: Full type safety throughout the application.
+- **Server-Side Rendering**: Optimized performance with Next.js App Router.
+
+## 🛠 Tech Stack
+
+- **Frontend**: Next.js 15, React 19, TypeScript
+- **Styling**: Tailwind CSS
+- **UI Components**: Radix UI, Lucide React icons
+- **Backend**: Supabase (Authentication, Database, Real-time subscriptions)
+- **Development**: ESLint, PostCSS
+
+## 📋 Prerequisites
+
+- Node.js 18+
+- npm or yarn
+- Supabase account and project
+
+## ⚙️ Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone <repository-url>
+   cd marktist-chat
+Install dependencies:
+
+## 
+
+npm install
+Set up environment variables: Create a .env.local file in the root directory:
+
+Extrait de code
+
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+Run the development server:
+
+##
+
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Open http://localhost:3000 in your browser.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+🕹 Usage
+Sign Up: Create a new account.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Access Pending: Wait for an administrator to approve your account.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Chat: Once approved, join the general room for real-time conversations.
 
-## Learn More
+Admin Panel: Users with the admin role can approve pending users and view the full user list.
 
-To learn more about Next.js, take a look at the following resources:
+📂 Project Structure
+Plaintext
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+├── app/                # Next.js app directory
+│   ├── auth/           # Authentication pages
+│   ├── chat/           # Chat interface logic (page.tsx)
+│   └── globals.css     # Global styles
+├── components/         # Reusable UI components
+│   ├── ui/             # shadcn/ui base components
+│   ├── realtime-chat   # Message feed and input area
+│   └── chat-message    # Individual message items
+├── hooks/              # Custom React hooks (real-time & scroll)
+├── lib/                # Utility functions and Supabase client
+└── public/             # Static assets
