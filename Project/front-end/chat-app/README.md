@@ -33,8 +33,6 @@ A high-performance, real-time chat interface built with **Next.js 15**. This rep
    cd marktist-frontend
 Install dependencies:
 
-Bash
-
 npm install
 Environment Configuration: Create a .env.local file to connect to your API/Backend:
 
@@ -44,10 +42,9 @@ NEXT_PUBLIC_SUPABASE_URL=your-project-url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 Run the app:
 
-Bash
-
 npm run dev
-📂 Frontend Architecture
+
+##📂 Frontend Architecture
 Plaintext
 
 ├── app/                # Next.js App Router & Layouts
