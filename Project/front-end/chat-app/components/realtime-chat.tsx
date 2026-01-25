@@ -23,7 +23,7 @@ export const RealtimeChat = ({
   onMessage,
   messages: initialMessages = [],
 }: RealtimeChatProps) => {
-  // REMOVED: useChatScroll (We want page.tsx to handle this)
+ 
 
   const {
     messages: realtimeMessages,
@@ -43,7 +43,7 @@ export const RealtimeChat = ({
     return uniqueMessages.sort((a, b) => a.createdAt.localeCompare(b.createdAt))
   }, [initialMessages, realtimeMessages])
 
-  // REMOVED: The useEffect that forced scrollToBottom() on every update
+  
 
   const handleSendMessage = useCallback(
     (e: React.FormEvent) => {
