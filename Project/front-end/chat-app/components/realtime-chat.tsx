@@ -1,8 +1,6 @@
 'use client'
 
-import { cn } from '@/lib/utils'
 import { ChatMessageItem } from '@/components/chat-message'
-import { useChatScroll } from '@/hooks/use-chat-scroll'
 import {
   type ChatMessage,
   useRealtimeChat,
@@ -10,7 +8,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Send } from 'lucide-react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 interface RealtimeChatProps {
   roomName: string
@@ -25,7 +23,7 @@ export const RealtimeChat = ({
   onMessage,
   messages: initialMessages = [],
 }: RealtimeChatProps) => {
-  const { containerRef, scrollToBottom } = useChatScroll()
+  // REMOVED: useChatScroll (We want page.tsx to handle this)
 
   const {
     messages: realtimeMessages,
@@ -45,9 +43,7 @@ export const RealtimeChat = ({
     return uniqueMessages.sort((a, b) => a.createdAt.localeCompare(b.createdAt))
   }, [initialMessages, realtimeMessages])
 
-  useEffect(() => {
-    scrollToBottom()
-  }, [allMessages, scrollToBottom])
+  // REMOVED: The useEffect that forced scrollToBottom() on every update
 
   const handleSendMessage = useCallback(
     (e: React.FormEvent) => {
@@ -77,8 +73,10 @@ export const RealtimeChat = ({
       className="flex flex-col h-full w-full antialiased"
       style={{ backgroundColor: '#1a1a1a', color: '#ededed' }}
     >
-      
-      <div ref={containerRef} className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
+      {/* CHANGE: Removed overflow-y-auto and ref={containerRef}. 
+          The page.tsx wrapper now handles the scroll.
+      */}
+      <div className="flex-1 p-4 space-y-4">
         {allMessages.length === 0 ? (
           <div className="text-center text-xs text-zinc-600 uppercase tracking-widest mt-10">
             Start the conversation
@@ -87,8 +85,7 @@ export const RealtimeChat = ({
         
         <div className="space-y-1">
           {allMessages.map((message, index) => {
-            const prevMessage = index > 0 ? allMessages[index - 1] : null
-            const showHeader = true; // This forces the name and time to appear on every message
+            const showHeader = true; 
 
             return (
               <div key={message.id} className="animate-in fade-in duration-300">
@@ -103,10 +100,9 @@ export const RealtimeChat = ({
         </div>
       </div>
 
-      {/* FIXED INPUT AREA: Removed max-w-4xl and used inline styles to kill white borders */}
       <form 
         onSubmit={handleSendMessage} 
-        className="p-4" 
+        className="p-4 sticky bottom-0 z-20" 
         style={{ 
           backgroundColor: '#1a1a1a', 
           borderTop: '1px solid #2d2d2d' 

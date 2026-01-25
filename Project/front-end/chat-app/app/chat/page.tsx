@@ -3,7 +3,7 @@
 import { RealtimeChat } from '@/components/realtime-chat'
 import { createClient } from '@/lib/client'
 import { useEffect, useState, useRef } from 'react'
-import { LogOut, Clock, Users, ShieldCheck } from 'lucide-react' // Added ShieldCheck for Admin icon
+import { LogOut, Clock, Users, ShieldCheck } from 'lucide-react'
 
 export default function ChatPage() {
   const supabase = createClient()
@@ -18,6 +18,11 @@ export default function ChatPage() {
   const [showUsersModal, setShowUsersModal] = useState(false)
   const [selectedUsers, setSelectedUsers] = useState<string[]>([])
 
+  // --- SCROLL & PAGINATION ---
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const [hasMore, setHasMore] = useState(true)
+  const [isFetching, setIsFetching] = useState(false)
+
   const isInitialized = useRef(false); 
   const lastProcessedMessage = useRef<string>(""); 
   const lastProcessTime = useRef<number>(0);
@@ -25,6 +30,56 @@ export default function ChatPage() {
   const handleLogout = async () => {
     await supabase.auth.signOut()
     window.location.href = '/'
+  }
+
+  // FETCH 20 OLDER MESSAGES
+  const loadMoreMessages = async () => {
+    if (isFetching || !hasMore || history.length === 0) return
+    setIsFetching(true)
+
+    const container = scrollContainerRef.current
+    const previousHeight = container?.scrollHeight || 0
+    const oldestDate = history[0]?.createdAt
+
+    const { data: moreMessages } = await supabase
+      .from('messages')
+      .select('*, profiles(username)')
+      .eq('room_id', 'general')
+      .lt('inserted_at', oldestDate)
+      .order('inserted_at', { ascending: false })
+      .limit(20) // FETCH 20 MORE
+
+    if (!moreMessages || moreMessages.length === 0) {
+      setHasMore(false)
+      setIsFetching(false)
+      return
+    }
+
+    const formatted = [...moreMessages].reverse().map((m: any) => ({
+      id: m.id.toString(),
+      content: m.content,
+      user: { name: m.profiles?.username || "User" },
+      createdAt: m.inserted_at 
+    }))
+
+    setHistory(prev => [...formatted, ...prev])
+
+    // Anchoring scroll so it doesn't jump
+    requestAnimationFrame(() => {
+      if (container) {
+        container.scrollTop = container.scrollHeight - previousHeight
+      }
+      setIsFetching(false)
+    })
+  }
+
+  const onScroll = () => {
+    if (scrollContainerRef.current) {
+      const { scrollTop } = scrollContainerRef.current
+      if (scrollTop <= 10 && hasMore && !isFetching) {
+        loadMoreMessages()
+      }
+    }
   }
 
   const handleBulkApprove = async () => {
@@ -71,19 +126,27 @@ export default function ChatPage() {
             const { data: profiles } = await supabase.from('profiles').select('id, username, is_approved, role')
             if (profiles) setAllUsers(profiles)
 
+            // INITIAL LOAD: 50 MESSAGES
             const { data: oldMessages } = await supabase
               .from('messages')
               .select('*, profiles(username)')
               .eq('room_id', 'general')
-              .order('inserted_at', { ascending: true })
+              .order('inserted_at', { ascending: false })
+              .limit(50) 
 
             if (oldMessages) {
-              setHistory(oldMessages.map((m: any) => ({
+              setHistory(oldMessages.reverse().map((m: any) => ({
                 id: m.id.toString(),
                 content: m.content,
                 user: { name: m.profiles?.username || "User" },
                 createdAt: m.inserted_at 
               })))
+
+              setTimeout(() => {
+                if (scrollContainerRef.current) {
+                  scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight
+                }
+              }, 100)
             }
 
             channel = supabase.channel('general_room')
@@ -99,6 +162,13 @@ export default function ChatPage() {
                     createdAt: newMessage.inserted_at || new Date().toISOString()
                   }];
                 });
+                
+                // Auto scroll for live messages
+                setTimeout(() => {
+                  if (scrollContainerRef.current) {
+                    scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight
+                  }
+                }, 50)
               }).subscribe()
         }
       } catch (err) { console.error(err) } finally { setLoading(false) }
@@ -136,12 +206,7 @@ export default function ChatPage() {
           <p className="text-zinc-400 mb-8">
             Welcome to MARKTIST, <span className="text-white font-medium">{userName}</span>. Your account is waiting for admin approval before you can join the chat.
           </p>
-          <button 
-            onClick={handleLogout}
-            className="w-full py-3 px-4 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl transition-all font-bold"
-          >
-            Logout
-          </button>
+          <button onClick={handleLogout} className="w-full py-3 px-4 bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl transition-all font-bold">Logout</button>
         </div>
       </div>
     )
@@ -149,7 +214,7 @@ export default function ChatPage() {
 
   return (
     <div 
-      className="flex flex-col h-screen max-w-5xl mx-auto relative" 
+      className="flex flex-col h-screen max-w-5xl mx-auto relative overflow-hidden" 
       style={{ backgroundColor: '#1a1a1a', borderLeft: '1px solid #2d2d2d', borderRight: '1px solid #2d2d2d' }}
     >
       <header 
@@ -163,36 +228,28 @@ export default function ChatPage() {
            </span>
         </div>
 
-        {/* TOP CENTER ADMIN BUTTONS */}
         {userRole === 'admin' && (
           <div className="flex items-center gap-3">
-            <button 
-              onClick={() => setShowUsersModal(true)} 
-              className="p-2 rounded-lg hover:bg-zinc-800 transition-all active:scale-95 border border-[#2d2d2d]"
-              style={{ color: '#24b47e' }}
-            >
-              <Users className="size-5" />
-            </button>
-            <button 
-              onClick={() => setShowAdminModal(true)} 
-              className="p-2 rounded-lg hover:bg-zinc-800 transition-all active:scale-95 border border-[#2d2d2d]"
-              style={{ color: '#00b4d8' }}
-            >
-              <ShieldCheck className="size-5" />
-            </button>
+            <button onClick={() => setShowUsersModal(true)} className="p-2 rounded-lg hover:bg-zinc-800 border border-[#2d2d2d]" style={{ color: '#24b47e' }}><Users className="size-5" /></button>
+            <button onClick={() => setShowAdminModal(true)} className="p-2 rounded-lg hover:bg-zinc-800 border border-[#2d2d2d]" style={{ color: '#00b4d8' }}><ShieldCheck className="size-5" /></button>
           </div>
         )}
 
-        {/* LOGOUT ICON ONLY */}
-        <button 
-          onClick={handleLogout} 
-          className="p-2.5 rounded-lg text-white bg-red-600 hover:bg-red-700 transition-all shadow-lg active:scale-95"
-        >
-          <LogOut className="size-5" />
-        </button>
+        <button onClick={handleLogout} className="p-2.5 rounded-lg text-white bg-red-600 hover:bg-red-700 transition-all shadow-lg active:scale-95"><LogOut className="size-5" /></button>
       </header>
 
-      <div className="flex-1 overflow-hidden relative z-10" style={{ backgroundColor: '#1a1a1a' }}>
+      {/* FIXED CONTAINER: No double scroll. Pagination trigger at top. */}
+      <div 
+        ref={scrollContainerRef}
+        onScroll={onScroll}
+        className="flex-1 overflow-y-auto relative z-10" 
+        style={{ backgroundColor: '#1a1a1a' }}
+      >
+        {isFetching && (
+          <div className="w-full py-4 text-center text-[10px] text-[#24b47e] font-bold uppercase tracking-widest animate-pulse">
+            Fetching History...
+          </div>
+        )}
         <RealtimeChat 
           roomName="general" 
           username={userName} 
@@ -211,16 +268,10 @@ export default function ChatPage() {
             </div>
             <div className="space-y-2 max-h-80 overflow-y-auto mb-2 scrollbar-hide">
               {allUsers.map((user) => (
-                <div 
-                  key={user.id} 
-                  className="flex flex-col p-3 rounded-lg"
-                  style={{ border: '1px solid #2d2d2d', backgroundColor: '#242424' }}
-                >
+                <div key={user.id} className="flex flex-col p-3 rounded-lg" style={{ border: '1px solid #2d2d2d', backgroundColor: '#242424' }}>
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-bold text-white">{user.username || 'User'}</span>
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${user.role === 'admin' ? 'bg-cyan-500/10 text-cyan-400' : 'bg-zinc-500/10 text-zinc-400'}`}>
-                      {user.role}
-                    </span>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${user.role === 'admin' ? 'bg-cyan-500/10 text-cyan-400' : 'bg-zinc-500/10 text-zinc-400'}`}>{user.role}</span>
                   </div>
                   <span className={`text-[10px] mt-1 font-bold uppercase ${user.is_approved ? 'text-[#24b47e]' : 'text-red-500'}`}>
                     {user.is_approved ? '● Approved' : '○ Pending'}
@@ -242,27 +293,13 @@ export default function ChatPage() {
             </div>
             <div className="space-y-2 max-h-60 overflow-y-auto mb-4 scrollbar-hide">
               {allUsers.filter(u => !u.is_approved).map((user) => (
-                <div 
-                  key={user.id} 
-                  onClick={() => setSelectedUsers(prev => prev.includes(user.id) ? prev.filter(id => id !== user.id) : [...prev, user.id])}
-                  className="flex items-center gap-3 p-2 cursor-pointer rounded-lg transition-all"
-                  style={{ 
-                    border: selectedUsers.includes(user.id) ? '1px solid #22d3ee' : '1px solid #2d2d2d',
-                    backgroundColor: selectedUsers.includes(user.id) ? 'rgba(34, 211, 238, 0.1)' : 'transparent'
-                  }}
-                >
-                  <div 
-                    className="w-4 h-4 rounded-full border transition-all" 
-                    style={{ 
-                      backgroundColor: selectedUsers.includes(user.id) ? '#22d3ee' : 'transparent',
-                      borderColor: selectedUsers.includes(user.id) ? '#22d3ee' : '#2d2d2d'
-                    }} 
-                  />
+                <div key={user.id} onClick={() => setSelectedUsers(prev => prev.includes(user.id) ? prev.filter(id => id !== user.id) : [...prev, user.id])} className="flex items-center gap-3 p-2 cursor-pointer rounded-lg" style={{ border: selectedUsers.includes(user.id) ? '1px solid #22d3ee' : '1px solid #2d2d2d', backgroundColor: selectedUsers.includes(user.id) ? 'rgba(34, 211, 238, 0.1)' : 'transparent' }}>
+                  <div className="w-4 h-4 rounded-full border" style={{ backgroundColor: selectedUsers.includes(user.id) ? '#22d3ee' : 'transparent', borderColor: selectedUsers.includes(user.id) ? '#22d3ee' : '#2d2d2d' }} />
                   <span className="text-sm" style={{ color: '#ffffff' }}>{user.username || 'New User'}</span>
                 </div>
               ))}
             </div>
-            <button onClick={handleBulkApprove} disabled={selectedUsers.length === 0} className="w-full bg-cyan-500 py-2 rounded-full font-bold text-black hover:bg-cyan-400 transition-colors">
+            <button onClick={handleBulkApprove} disabled={selectedUsers.length === 0} className="w-full bg-cyan-500 py-2 rounded-full font-bold text-black hover:bg-cyan-400">
               Approve selected ({selectedUsers.length})
             </button>
           </div>
