@@ -1,75 +1,62 @@
-# MARKTIST Chat App
+# MARKTIST - Frontend
 
-A modern, real-time chat application built with Next.js 15, featuring a robust administrative approval system, secure messaging, and an optimized scrollable history.
+A high-performance, real-time chat interface built with **Next.js 15**. This repository contains the frontend implementation, featuring a custom administrative gatekeeping UI and optimized message virtualization.
 
-## 🚀 Key Features
+## 🚀 Frontend Features
 
-- **Admin Gatekeeping**: New users are placed in a "Pending" state until an admin grants access via the built-in Admin Panel.
-- **Smart History Pagination**: Loads an initial **50 messages** and fetches **20 more** on-demand as you scroll up, using scroll-anchoring to prevent UI jumps.
-- **Real-time Chat**: Instant messaging with live updates powered by Supabase Postgres Changes.
-- **Responsive Design**: Mobile-friendly interface built with Tailwind CSS and a high-contrast dark theme.
-- **Modern UI Components**: Clean, accessible components using Radix UI and shadcn/ui.
-- **TypeScript Support**: Full type safety throughout the application.
-- **Server-Side Rendering**: Optimized performance with Next.js App Router.
+- **Smart UI State Management**: Handles "Access Pending" and "Approved" views dynamically based on user profile status.
+- **Optimized Chat Pagination**: Implements a custom scroll-anchoring system that loads 50 initial messages and fetches 20 older messages seamlessly when the user reaches the top.
+- **Admin Dashboard**: A protected interface for administrators to manage user approvals and view the global directory.
+- **Real-time Integration**: Subscribes to database changes to update the UI instantly without page refreshes.
+- **Responsive Dark Mode**: A sleek, high-contrast dark theme optimized for both mobile and desktop.
+- **Full Type Safety**: Built with TypeScript for reliable prop handling and API integration.
 
 ## 🛠 Tech Stack
 
-- **Frontend**: Next.js 15, React 19, TypeScript
+- **Framework**: Next.js 15 (App Router)
+- **Library**: React 19
 - **Styling**: Tailwind CSS
-- **UI Components**: Radix UI, Lucide React icons
-- **Backend**: Supabase (Authentication, Database, Real-time subscriptions)
-- **Development**: ESLint, PostCSS
+- **Icons**: Lucide React
+- **Type System**: TypeScript
+- **Client-side Auth**: Supabase Auth Helpers
 
 ## 📋 Prerequisites
 
 - Node.js 18+
 - npm or yarn
-- Supabase account and project
 
-## ⚙️ Installation
+## ⚙️ Local Development
 
 1. **Clone the repository:**
    ```bash
    git clone <repository-url>
-   cd marktist-chat
+   cd marktist-frontend
 Install dependencies:
 
-## 
+Bash
 
 npm install
-Set up environment variables: Create a .env.local file in the root directory:
+Environment Configuration: Create a .env.local file to connect to your API/Backend:
 
 Extrait de code
 
-NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
-Run the development server:
+NEXT_PUBLIC_SUPABASE_URL=your-project-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+Run the app:
 
-##
+Bash
 
 npm run dev
-Open http://localhost:3000 in your browser.
-
-🕹 Usage
-Sign Up: Create a new account.
-
-Access Pending: Wait for an administrator to approve your account.
-
-Chat: Once approved, join the general room for real-time conversations.
-
-Admin Panel: Users with the admin role can approve pending users and view the full user list.
-
-📂 Project Structure
+📂 Frontend Architecture
 Plaintext
 
-├── app/                # Next.js app directory
-│   ├── auth/           # Authentication pages
-│   ├── chat/           # Chat interface logic (page.tsx)
-│   └── globals.css     # Global styles
-├── components/         # Reusable UI components
-│   ├── ui/             # shadcn/ui base components
-│   ├── realtime-chat   # Message feed and input area
-│   └── chat-message    # Individual message items
-├── hooks/              # Custom React hooks (real-time & scroll)
-├── lib/                # Utility functions and Supabase client
-└── public/             # Static assets
+├── app/                # Next.js App Router & Layouts
+│   ├── auth/           # Login/Signup UI
+│   └── chat/           # Chat Logic & Scroll Handling
+├── components/         # UI Library
+│   ├── ui/             # Core UI primitives
+│   ├── realtime-chat   # Message feed container
+│   └── chat-message    # Message presentation
+├── hooks/              # Custom UI hooks (Scroll & Auth)
+├── lib/                # API client & Utility helpers
+└── public/             # Assets & Logos
