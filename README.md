@@ -48,25 +48,24 @@ The project is split into two specialized layers to ensure scalability and clean
 ## 📂 Project Structure
 
 ```text
-├── Project/<br />
-│   ├── front-end/<br />
-│   │   └── chat-app/          # Next.js Application<br />
-│   │       ├── app/           # App Router & Server Components<br />
-│   │       ├── components/    # Chat Feed & Admin Modals<br />
-│   │       └── hooks/         # Scroll & Real-time logic<br />
+├── Project/
+│   ├── front-end/
+│   │   └── chat-app/          # Next.js Application
+│   │       ├── app/           # App Router & Server Components
+│   │       ├── components/    # Chat Feed & Admin Modals
+│   │       └── hooks/         # Scroll & Real-time logic
 │   └── back-end/<br />
-│       └── supabase.sql       # Database Schema & RLS Policies<br />
+│       └── supabase.sql       # Database Schema & RLS Policies
 ⚙️ Setup & Installation
 Database Setup
-Execute the Project/back-end/supabase.sql script in your Supabase SQL Editor.<br />
+Execute the Project/back-end/supabase.sql script in your Supabase SQL Editor.
 
-Enable Realtime on the messages table in your Supabase Dashboard.<br />
+Enable Realtime on the messages table in your Supabase Dashboard.
 
-Frontend Setup<br />
-Navigate to the chat-app directory.<br />
+Frontend Setup
+Navigate to the chat-app directory.
 
-Install dependencies: npm install.<br />
+Install dependencies: npm install.
 
-Configure .env.local with your NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.<br />
-
-Launch the environment: npm run dev.<br />
+Configure .env.local with your NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.
+Launch the environment: npm run dev.
