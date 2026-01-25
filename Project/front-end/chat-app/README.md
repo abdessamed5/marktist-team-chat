@@ -29,31 +29,31 @@ A high-performance, real-time chat interface built with **Next.js 15**. This rep
 
 1. **Clone the repository:**
    ```bash
-   git clone <repository-url>
+   git clone <https://github.com/abdessamed5/marktist-team-chat/tree/main/Project/front-end/chat-app>
    cd marktist-frontend
-Install dependencies:
+## Install dependencies:<br />
 
-npm install
-Environment Configuration: Create a .env.local file to connect to your API/Backend:
+npm install<br />
+Environment Configuration: Create a .env.local file to connect to your API/Backend:<br />
 
 Extrait de code
 
-NEXT_PUBLIC_SUPABASE_URL=your-project-url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-Run the app:
+NEXT_PUBLIC_SUPABASE_URL=your-project-url<br />
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key<br /><br />
+Run the app:<br />
 
 npm run dev
 
-##📂 Frontend Architecture
+## 📂 Frontend Architecture
 Plaintext
 
-├── app/                # Next.js App Router & Layouts
-│   ├── auth/           # Login/Signup UI
-│   └── chat/           # Chat Logic & Scroll Handling
-├── components/         # UI Library
-│   ├── ui/             # Core UI primitives
-│   ├── realtime-chat   # Message feed container
-│   └── chat-message    # Message presentation
-├── hooks/              # Custom UI hooks (Scroll & Auth)
-├── lib/                # API client & Utility helpers
-└── public/             # Assets & Logos
+├── app/                # Next.js App Router & Layouts<br />
+│   ├── auth/           # Login/Signup UI<br />
+│   └── chat/           # Chat Logic & Scroll Handling<br />
+├── components/         # UI Library<br />
+│   ├── ui/             # Core UI primitives<br />
+│   ├── realtime-chat   # Message feed container<br />
+│   └── chat-message    # Message presentation<br />
+├── hooks/              # Custom UI hooks (Scroll & Auth)<br />
+├── lib/                # API client & Utility helpers<br />
+└── public/             # Assets & Logos<br />
