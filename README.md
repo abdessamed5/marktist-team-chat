@@ -5,6 +5,29 @@ MARKTIST is a sophisticated, full-stack communication platform built with **Next
 
 
 ---
+## 🧠 Development Philosophy: Why this Stack?
+
+### The Shift to Supabase + Next.js
+While I am proficient in the traditional **Node.js/Django** ecosystem, I chose to integrate **Supabase** for this project. This was a deliberate learning challenge for me. Despite it being new to my workflow, I recognized its potential for:
+* **Rapid Deployment**: It allowed me to move from schema design to a live real-time app in record time.
+* **Reliability**: Using a managed Postgres instance ensures data integrity and high availability.
+* **Security-First Architecture**: Learning Supabase's Row Level Security (RLS) pushed me to think about security at the database level, rather than just the application level.
+
+I felt the need to master this modern stack because staying at the forefront of technology is what drives me as a developer. Adapting to new, powerful tools is core to my growth mindset.
+
+---
+
+## 🛡️ Security & Anti-Exploit Measures
+
+Security was not an afterthought in this project. I implemented several layers of protection to ensure the integrity of the application:
+
+### 1. SQL Injection Prevention
+Instead of manually concatenating strings in queries, I leveraged the **Supabase JavaScript Client**, which utilizes **parameterized queries** under the hood. This ensures that user input is never executed as code, effectively neutralizing SQL Injection (SQLi) attacks.
+
+### 2. Environment Variable Protection (Anti-Reverse Engineering)
+To prevent the leaking of sensitive API keys and database credentials:
+* **Server-Side Protection**: All sensitive operations are handled via Next.js Server Actions or API routes where variables are stored in `.env.local`.
+* **Prefix Logic**: Only variables prefixed with `NEXT_PUBLIC_` are accessible to the browser, while the "Service Role" keys remain strictly on the server, hidden from the client-side bundle and reverse-engineering attempts.
 
 ## 🏗️ System Architecture
 
@@ -69,3 +92,4 @@ Install dependencies: npm install.
 
 Configure .env.local with your NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.
 Launch the environment: npm run dev.
+
