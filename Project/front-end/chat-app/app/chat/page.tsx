@@ -3,19 +3,19 @@
 import { RealtimeChat } from '@/components/realtime-chat'
 import { createClient } from '@/lib/client'
 import { useEffect, useState, useRef } from 'react'
-import { LogOut, Clock, Users } from 'lucide-react'
+import { LogOut, Clock, Users, ShieldCheck } from 'lucide-react' // Added ShieldCheck for Admin icon
 
 export default function ChatPage() {
   const supabase = createClient()
   const [userId, setUserId] = useState<string | null>(null)
   const [userName, setUserName] = useState<string>('')
   const [userRole, setUserRole] = useState<string>('') 
-  const [isApproved, setIsApproved] = useState<boolean | null>(null) // NEW: Track approval status
+  const [isApproved, setIsApproved] = useState<boolean | null>(null)
   const [history, setHistory] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [allUsers, setAllUsers] = useState<any[]>([])
   const [showAdminModal, setShowAdminModal] = useState(false)
-  const [showUsersModal, setShowUsersModal] = useState(false) // NEW: State for Users List modal
+  const [showUsersModal, setShowUsersModal] = useState(false)
   const [selectedUsers, setSelectedUsers] = useState<string[]>([])
 
   const isInitialized = useRef(false); 
@@ -24,7 +24,7 @@ export default function ChatPage() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
-    window.location.href = '/auth/login'
+    window.location.href = '/'
   }
 
   const handleBulkApprove = async () => {
@@ -52,7 +52,7 @@ export default function ChatPage() {
         isInitialized.current = true; 
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) {
-          window.location.href = '/auth/login'
+          window.location.href = '/'
           return
         }
         setUserId(user.id)
@@ -159,12 +159,36 @@ export default function ChatPage() {
         <div className="flex flex-col">
            <h1 className="font-bold text-xl text-[#24b47e] leading-none">MARKTIST</h1>
            <span className="text-[10px] uppercase tracking-wider mt-1 font-bold" style={{ color: '#ffffff' }}>
-             Logged in as: {userName}
+             LOGGED IN AS: {userName}
            </span>
         </div>
-        <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold text-white bg-red-600 hover:bg-red-700 transition-all shadow-lg active:scale-95">
-          <LogOut className="size-4" />
-          Logout
+
+        {/* TOP CENTER ADMIN BUTTONS */}
+        {userRole === 'admin' && (
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => setShowUsersModal(true)} 
+              className="p-2 rounded-lg hover:bg-zinc-800 transition-all active:scale-95 border border-[#2d2d2d]"
+              style={{ color: '#24b47e' }}
+            >
+              <Users className="size-5" />
+            </button>
+            <button 
+              onClick={() => setShowAdminModal(true)} 
+              className="p-2 rounded-lg hover:bg-zinc-800 transition-all active:scale-95 border border-[#2d2d2d]"
+              style={{ color: '#00b4d8' }}
+            >
+              <ShieldCheck className="size-5" />
+            </button>
+          </div>
+        )}
+
+        {/* LOGOUT ICON ONLY */}
+        <button 
+          onClick={handleLogout} 
+          className="p-2.5 rounded-lg text-white bg-red-600 hover:bg-red-700 transition-all shadow-lg active:scale-95"
+        >
+          <LogOut className="size-5" />
         </button>
       </header>
 
@@ -176,28 +200,6 @@ export default function ChatPage() {
           messages={history} 
         />
       </div>
-
-      {userRole === 'admin' && (
-        <>
-          {/* USERS LIST BUTTON (Positioned Above Admin Button) */}
-          <button 
-            onClick={() => setShowUsersModal(true)} 
-            className="fixed bottom-24 left-6 z-[999] p-4 rounded-full shadow-lg hover:bg-zinc-900 transition-all active:scale-95"
-            style={{ backgroundColor: '#242424', color: '#24b47e', border: '1px solid #2d2d2d' }}
-          >
-            <Users className="size-5" />
-          </button>
-
-          {/* ADMIN APPROVE BUTTON */}
-          <button 
-            onClick={() => setShowAdminModal(true)} 
-            className="fixed bottom-6 left-6 z-[999] p-4 rounded-full shadow-lg hover:bg-zinc-900 transition-all active:scale-95 text-xs font-bold uppercase tracking-tight"
-            style={{ backgroundColor: '#242424', color: '#00b4d8', border: '1px solid #2d2d2d' }}
-          >
-            Admin
-          </button>
-        </>
-      )}
 
       {/* MODAL 1: USERS LIST */}
       {showUsersModal && (
