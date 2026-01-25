@@ -53,6 +53,15 @@ The project is split into two specialized layers to ensure scalability and clean
 * **Dark-Theme UI**: A high-contrast, professional dark mode built with Tailwind CSS for reduced eye strain during long-form communication.<br />
 
 ---
+## 🌐 Deployment Notes (Vercel)
+
+The application is hosted on the Vercel Free Tier. Due to the serverless nature of this environment, the following should be noted:
+- **Cold Starts**: Initial page loads may experience a brief delay if the serverless functions have been idle.
+- **WebSocket Persistence**: While the chat uses Supabase Realtime (which is robust), Vercel's serverless functions are stateless. All persistent data logic is handled by the Supabase backend to ensure no messages are lost during function recycling.
+- **Middleware**: Role-based redirects are handled via Next.js Middleware. On the free tier, these are subject to standard execution limits.
+
+
+---
 
 ## 🛠️ Tech Stack
 
