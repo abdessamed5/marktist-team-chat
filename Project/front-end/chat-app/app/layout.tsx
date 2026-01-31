@@ -26,7 +26,6 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        /* We use inline style here to override any remaining CSS issues */
         style={{ backgroundColor: '#1a1a1a', color: '#ffffff', minHeight: '100vh' }}
       >
         {children}

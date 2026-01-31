@@ -1,9 +1,7 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-// Change this line:
-// Point it to the client file directly in the lib folder
-import { createClient } from '@/lib/client'// Ensure this matches your path
+import { createClient } from '@/lib/client'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -44,7 +42,6 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
         email,
         password,
         options: {
-          // 2. This sends the username to your Postgres Trigger!
           data: {
             username: username,
           },
@@ -70,7 +67,7 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
         <CardContent>
           <form onSubmit={handleSignUp}>
             <div className="flex flex-col gap-6">
-              {/* 3. Added Username Input Field */}
+              {/* 3.  Username Input Field */}
               <div className="grid gap-2">
                 <Label htmlFor="username">Username</Label>
                 <Input

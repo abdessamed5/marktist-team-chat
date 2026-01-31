@@ -73,9 +73,7 @@ export const RealtimeChat = ({
       className="flex flex-col h-full w-full antialiased"
       style={{ backgroundColor: '#1a1a1a', color: '#ededed' }}
     >
-      {/* CHANGE: Removed overflow-y-auto and ref={containerRef}. 
-          The page.tsx wrapper now handles the scroll.
-      */}
+      {/* ------------*/}
       <div className="flex-1 p-4 space-y-4">
         {allMessages.length === 0 ? (
           <div className="text-center text-xs text-zinc-600 uppercase tracking-widest mt-10">
